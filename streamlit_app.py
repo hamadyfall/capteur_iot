@@ -5,10 +5,16 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 
-# Initialisation Firebase (si besoin)
+# Initialisation via les secrets Streamlit
 if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")
-    initialize_app(cred, {'databaseURL': "https://capteur-iot-default-rtdb.europe-west1.firebasedatabase.app/"})
+    # On transforme les secrets Streamlit en dictionnaire Python
+    fb_creds = dict(st.secrets["firebase"])
+    # Important : Streamlit gère parfois mal les \n, on s'assure qu'ils sont corrects
+    fb_creds["private_key"] = fb_creds["private_key"].replace("\\n", "\n")
+    cred = credentials.Certificate(fb_creds)
+    firebase_admin.initialize_app(cred, {
+        'databaseURL': "https://capteur-iot-default-rtdb.europe-west1.firebasedatabase.app/"
+    })
 
 st.set_page_config(page_title="Dashboard IoT", layout="wide")
 st.title(" Analyse Historique des Capteurs")
